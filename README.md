@@ -1,132 +1,159 @@
-# Clean Architecture Solution Template
+# .NET Solution Templates Collection
 
-[![Build](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/build.yml/badge.svg)](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/build.yml)
-[![CodeQL](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/codeql.yml/badge.svg)](https://github.com/jasontaylordev/CleanArchitecture/actions/workflows/codeql.yml)
-[![Nuget](https://img.shields.io/nuget/v/Clean.Architecture.Solution.Template?label=NuGet)](https://www.nuget.org/packages/Clean.Architecture.Solution.Template)
-[![Nuget](https://img.shields.io/nuget/dt/Clean.Architecture.Solution.Template?label=Downloads)](https://www.nuget.org/packages/Clean.Architecture.Solution.Template)
-![Twitter Follow](https://img.shields.io/twitter/follow/jasontaylordev?label=Follow&style=social)
+A curated collection of .NET solution templates following best practices and modern architectural patterns. These templates are designed for local use and provide a solid foundation for various types of .NET applications.
 
-The goal of this template is to provide a straightforward and efficient approach to enterprise application development, leveraging the power of Clean Architecture and ASP.NET Core. Using this template, you can effortlessly create a Single Page App (SPA) with ASP.NET Core and Angular or React, while adhering to the principles of Clean Architecture. Getting started is easy - simply install the **.NET template** (see below for full details).
+## 📦 Available Templates
 
-If you find this project useful, please give it a star. Thanks! ⭐
+### 1. Clean Architecture Solution Template
+**Short Name:** `ca-sln`  
+**Description:** A comprehensive Clean Architecture solution template featuring:
+- ASP.NET Core 9.0
+- Angular, React, or API-only options
+- Entity Framework Core with SQL Server, PostgreSQL, or SQLite
+- Docker support
+- CI/CD pipelines (GitHub Actions or Azure DevOps)
+- Full test suite (Unit, Integration, Functional, and Acceptance tests)
 
-## Getting Started
-
-The following prerequisites are required to build and run the solution:
-
-- [.NET 9.0 SDK](https://dotnet.microsoft.com/download/dotnet/9.0) (latest version)
-- [Node.js](https://nodejs.org/) (latest LTS, only required if you are using Angular or React)
-
-The easiest way to get started is to install the [.NET template](https://www.nuget.org/packages/Clean.Architecture.Solution.Template):
-```
-dotnet new install Clean.Architecture.Solution.Template
-```
-
-Once installed, create a new solution using the template. You can choose to use Angular, React, or create a Web API-only solution. Specify the client framework using the `-cf` or `--client-framework` option, and provide the output directory where your project will be created. Here are some examples:
-
-To create a Single-Page Application (SPA) with Angular and ASP.NET Core:
-```bash
-dotnet new ca-sln --client-framework Angular --output YourProjectName
-```
-
-To create a SPA with React and ASP.NET Core:
-```bash
-dotnet new ca-sln -cf React -o YourProjectName
-```
-
-To create a ASP.NET Core Web API-only solution:
-```bash
-dotnet new ca-sln -cf None -o YourProjectName
-```
-
-Launch the app:
-```bash
-cd src/Web
-dotnet run
-```
-
-To learn more, run the following command:
-```bash
-dotnet new ca-sln --help
-```
-
-You can create use cases (commands or queries) by navigating to `./src/Application` and running `dotnet new ca-usecase`. Here are some examples:
-
-To create a new command:
-```bash
-dotnet new ca-usecase --name CreateTodoList --feature-name TodoLists --usecase-type command --return-type int
-```
-
-To create a query:
-```bash
-dotnet new ca-usecase -n GetTodos -fn TodoLists -ut query -rt TodosVm
-```
-
-To learn more, run the following command:
-```bash
-dotnet new ca-usecase --help
-```
-
-## Database
-
-The template supports [PostgresSQL](https://www.postgresql.org), [SQLite](https://www.sqlite.org/), and [SQL Server](https://learn.microsoft.com/en-us/sql/sql-server/what-is-sql-server) (default option). Specify the database to use with the `--database` option:
+[📖 View Documentation](templates/clean-architecture/README.md)
 
 ```bash
-dotnet new ca-sln --database [postgresql|sqlite|sqlserver]
+# Install template from local source
+dotnet new install ./templates/clean-architecture
+
+# Create a new solution
+dotnet new ca-sln -n MyProject -cf React
 ```
 
-When you run the application, the database will be automatically created (if necessary) and the latest migrations will be applied.
+### 2. Minimal API Template (Coming Soon)
+**Short Name:** `min-api`  
+**Description:** Lightweight API template with minimal dependencies and fast startup
 
-Running database migrations is easy. Ensure you add the following flags to your command (values assume you are executing from repository root)
+### 3. Blazor Clean Architecture (Coming Soon)
+**Short Name:** `blazor-ca`  
+**Description:** Clean Architecture with Blazor WebAssembly/Server options
 
-* `--project src/Infrastructure` (optional if in this folder)
-* `--startup-project src/Web`
-* `--output-dir Data/Migrations`
+### 4. Microservices Template (Coming Soon)
+**Short Name:** `micro-sln`  
+**Description:** Distributed microservices solution with service discovery and messaging
 
-For example, to add a new migration from the root folder:
+## 🚀 Quick Start
 
- `dotnet ef migrations add "SampleMigration" --project src\Infrastructure --startup-project src\Web --output-dir Data\Migrations`
+### Prerequisites
+- .NET 9.0 SDK or later
+- Node.js (for Angular/React templates)
+- Docker Desktop (optional, for containerization)
 
-## Deploy
+### Installation
 
-This template is structured to follow the Azure Developer CLI (azd). You can learn more about `azd` in the [official documentation](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli). To get started:
+Since these templates are for local use, clone this repository and install templates directly:
 
 ```bash
-# Log in to Azure
-azd auth login
+# Clone the repository
+git clone https://github.com/yourusername/DotNetTemplates.git
+cd DotNetTemplates
 
-# Provision and deploy to Azure
-azd up
+# Install all templates
+./scripts/install-all.ps1
+
+# Or install a specific template
+dotnet new install ./templates/clean-architecture
 ```
 
-## Technologies
+### Usage
 
-* [ASP.NET Core 9](https://docs.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core)
-* [Entity Framework Core 9](https://docs.microsoft.com/en-us/ef/core/)
-* [Angular 18](https://angular.dev/) or [React 18](https://react.dev/)
-* [MediatR](https://github.com/jbogard/MediatR)
-* [AutoMapper](https://automapper.org/)
-* [FluentValidation](https://fluentvalidation.net/)
-* [NUnit](https://nunit.org/), [FluentAssertions](https://fluentassertions.com/), [Moq](https://github.com/devlooped/moq) & [Respawn](https://github.com/jbogard/Respawn)
+After installation, create a new project using any template:
 
-## Versions
-The main branch is now on .NET 9.0. The following previous versions are available:
+```bash
+# List available templates
+dotnet new list
 
-* [8.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net8.0)
-* [7.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net7.0)
-* [6.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net6.0)
-* [5.0](https://github.com/jasontaylordev/CleanArchitecture/tree/net5.0)
-* [3.1](https://github.com/jasontaylordev/CleanArchitecture/tree/netcore3.1)
+# Create a new Clean Architecture solution
+dotnet new ca-sln -n MyApp -cf Angular -d postgresql
 
-## Learn More
+# Create with all available options
+dotnet new ca-sln -n MyApp \
+  -cf React \              # Client Framework: Angular|React|None
+  -d postgresql \          # Database: sqlserver|postgresql|sqlite
+  -p github \              # Pipeline: github|azdo
+  --use-aspire false       # .NET Aspire support
+```
 
-* [Clean Architecture with ASP.NET Core 3.0 (GOTO 2019)](https://youtu.be/dK4Yb6-LxAk)
-* [Clean Architecture with .NET Core: Getting Started](https://jasontaylor.dev/clean-architecture-getting-started/)
+## 📁 Repository Structure
 
-## Support
+```
+DotNetTemplates/
+├── templates/                 # All template sources
+│   ├── clean-architecture/    # Clean Architecture template
+│   ├── minimal-api/          # Minimal API template
+│   └── ...                   # Other templates
+├── scripts/                  # Management scripts
+│   ├── install-all.ps1       # Install all templates
+│   ├── uninstall-all.ps1     # Uninstall all templates
+│   └── test-templates.ps1    # Test template creation
+├── docs/                     # Documentation
+│   ├── getting-started.md    # Getting started guide
+│   ├── contributing.md       # Contribution guidelines
+│   └── architecture/         # Architecture documentation
+└── .gitignore               # Git ignore patterns
+```
 
-If you are having problems, please let me know by [raising a new issue](https://github.com/jasontaylordev/CleanArchitecture/issues/new/choose).
+## 🛠️ Template Management
 
-## License
+### Installing Templates
 
-This project is licensed with the [MIT license](LICENSE).
+```powershell
+# Install all templates
+./scripts/install-all.ps1
+
+# Install specific template
+dotnet new install ./templates/clean-architecture
+```
+
+### Updating Templates
+
+```powershell
+# Uninstall and reinstall to update
+./scripts/uninstall-all.ps1
+./scripts/install-all.ps1
+```
+
+### Testing Templates
+
+```powershell
+# Test all template variations
+./scripts/test-templates.ps1
+```
+
+## 📝 Template Development
+
+To modify or create new templates:
+
+1. **Modify existing template**: Edit files in `templates/[template-name]/`
+2. **Update template config**: Edit `.template.config/template.json`
+3. **Test changes**: Run `./scripts/test-templates.ps1`
+4. **Reinstall**: Run `./scripts/install-all.ps1`
+
+See [Contributing Guide](docs/contributing.md) for detailed instructions.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](docs/contributing.md) for details on:
+- Code of conduct
+- Development process
+- Submitting pull requests
+- Creating new templates
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- [Jason Taylor](https://github.com/jasontaylordev) for the original Clean Architecture template
+- The .NET community for continuous feedback and contributions
+
+## 📞 Support
+
+- Create an [Issue](https://github.com/yourusername/DotNetTemplates/issues) for bugs or feature requests
+- Check [Documentation](docs/) for guides and examples
+- Review documentation for customization guidelines

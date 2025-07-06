@@ -480,3 +480,98 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 .azure
+
+# Template testing output
+test-output/
+
+# Local template installations log
+*.templateengine/
+
+# IDE-specific files
+.idea/
+
+# Template package output
+*.nupkg
+*.snupkg
+
+# Temporary backup files
+*.bak
+
+# Claude-related files
+/.claude/
+CLAUDE.md
+*.claude
+.claude*
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local development configuration
+appsettings.Local.json
+appsettings.Production.json
+appsettings.*.local.json
+secrets.json
+secrets.*.json
+.env.local
+.env.*.local
+
+# Additional test results
+*.trx
+TestResults/
+.sonarqube/
+SonarQube/
+*.received.txt
+*.received.json
+*.received.xml
+playwright-report/
+stryker-output/
+.mutants/
+mutation-report.html
+
+# Additional build artifacts
+dist/
+.angular/
+.parcel-cache/
+.nx/
+.turbo/
+
+# Additional IDE files
+*.sln.DotSettings
+.eclipse/
+*.sublime-project
+*.sublime-workspace
+
+# Package manager
+yarn.lock
+pnpm-lock.yaml
+.pnpm-store/
+lerna-debug.log*
+
+# Development tools
+.dotnet/
+.aspnet/
+.eslintcache
+.stylelintcache
+.nuke/
+
+# Docker local files
+docker-compose.override.yml
+.env.docker
+Dockerfile.local
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraformrc
+terraform.rc
+
+# Additional temporary files
+*.tmp
+*.temp
+*.orig
+*.rej

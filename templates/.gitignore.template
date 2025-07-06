@@ -1,0 +1,51 @@
+# Template .gitignore reference
+# Add these entries to all .gitignore files in templates
+
+# Claude-related files
+CLAUDE.md
+*.claude
+.claude*
+/.claude/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Local development configuration
+appsettings.Local.json
+appsettings.Production.json
+appsettings.*.local.json
+secrets.json
+secrets.*.json
+.env.local
+.env.*.local
+
+# Test results
+*.trx
+TestResults/
+.sonarqube/
+*.received.txt
+*.received.json
+*.received.xml
+
+# Temporary files
+*.bak
+*.tmp
+*.temp
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
+
+# Package manager (if not already in template)
+yarn.lock
+pnpm-lock.yaml
+.pnpm-store/
+
+# Docker local files
+docker-compose.override.yml
+.env.docker
+Dockerfile.local
