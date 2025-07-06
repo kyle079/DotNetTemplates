@@ -1,14 +1,14 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "JasonTaylorDev",
+  "author": "Kyle Miller (based on JasonTaylorDev)",
   "classifications": [
     "Clean Architecture"
   ],
-  "name": "Clean Architecture Solution Use Case",
-  "description":  "Create a new use case (query or command)",
-  "identity": "Clean.Architecture.Solution.UseCase.CSharp",
-  "groupIdentity": "Clean.Architecture.Solution.UseCase",
-  "shortName": "ca-usecase",
+  "name": "Clean Architecture Solution Use Case (Custom)",
+  "description":  "Create a new use case (query or command) for the custom template",
+  "identity": "Custom.Clean.Architecture.Solution.UseCase.CSharp",
+  "groupIdentity": "Custom.Clean.Architecture.Solution.UseCase",
+  "shortName": "ca-usecase-custom",
   "tags": {
     "language": "C#",
     "type": "item"

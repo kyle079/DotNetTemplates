@@ -62,10 +62,10 @@ foreach ($template in $templateDirs) {
             dotnet new uninstall $template.FullName
             
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "✓ Successfully uninstalled $($template.Name)" -ForegroundColor Green
+                Write-Host "[OK] Successfully uninstalled $($template.Name)" -ForegroundColor Green
                 $uninstalled++
             } else {
-                Write-Host "✗ Failed to uninstall $($template.Name)" -ForegroundColor Red
+                Write-Host "[FAIL] Failed to uninstall $($template.Name)" -ForegroundColor Red
                 $failed++
             }
         } else {
@@ -74,7 +74,7 @@ foreach ($template in $templateDirs) {
         }
     }
     catch {
-        Write-Host "✗ Error processing $($template.Name): $_" -ForegroundColor Red
+        Write-Host "[FAIL] Error processing $($template.Name): $_" -ForegroundColor Red
         $failed++
     }
     

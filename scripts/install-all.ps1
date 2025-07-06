@@ -49,15 +49,15 @@ foreach ($template in $templateDirs) {
         dotnet new install $template.FullName --force
         
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✓ Successfully installed $($template.Name)" -ForegroundColor Green
+            Write-Host "[OK] Successfully installed $($template.Name)" -ForegroundColor Green
             $installed++
         } else {
-            Write-Host "✗ Failed to install $($template.Name)" -ForegroundColor Red
+            Write-Host "[FAIL] Failed to install $($template.Name)" -ForegroundColor Red
             $failed++
         }
     }
     catch {
-        Write-Host "✗ Error installing $($template.Name): $_" -ForegroundColor Red
+        Write-Host "[ERROR] Error installing $($template.Name): $_" -ForegroundColor Red
         $failed++
     }
     
@@ -76,7 +76,7 @@ Write-Host "`nTo see installed templates, run:" -ForegroundColor Yellow
 Write-Host "  dotnet new list" -ForegroundColor White
 
 Write-Host "`nTo create a new project from a template, run:" -ForegroundColor Yellow
-Write-Host "  dotnet new <template-short-name> -n <project-name>" -ForegroundColor White
+Write-Host "  dotnet new [template-short-name] -n [project-name]" -ForegroundColor White
 
 if ($failed -gt 0) {
     exit 1

@@ -107,11 +107,11 @@ foreach ($scenario in $testScenarios) {
                 
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host " Done" -ForegroundColor Green
-                    Write-Host "✓ Test passed" -ForegroundColor Green
+                    Write-Host "[OK] Test passed" -ForegroundColor Green
                     $passed++
                 } else {
                     Write-Host " Failed" -ForegroundColor Red
-                    Write-Host "✗ Build failed" -ForegroundColor Red
+                    Write-Host "[FAIL] Build failed" -ForegroundColor Red
                     $failed++
                 }
             }
@@ -120,12 +120,12 @@ foreach ($scenario in $testScenarios) {
             }
         } else {
             Write-Host " Failed" -ForegroundColor Red
-            Write-Host "✗ Project creation failed" -ForegroundColor Red
+            Write-Host "[FAIL] Project creation failed" -ForegroundColor Red
             $failed++
         }
     }
     catch {
-        Write-Host "✗ Error: $_" -ForegroundColor Red
+        Write-Host "[FAIL] Error: $_" -ForegroundColor Red
         $failed++
     }
     
