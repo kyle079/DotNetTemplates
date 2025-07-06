@@ -49,3 +49,4 @@ pnpm-lock.yaml
 docker-compose.override.yml
 .env.docker
 Dockerfile.local
+DOCKER-CREDENTIALS.md

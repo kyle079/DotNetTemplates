@@ -68,5 +68,21 @@ public static class DependencyInjection
 
         builder.Services.AddAuthorization(options =>
             options.AddPolicy(Policies.CanPurge, policy => policy.RequireRole(Roles.Administrator)));
+
+#if (UseRedis)
+        // Add Redis distributed cache
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = builder.Configuration.GetConnectionString("Redis") ?? "localhost:6379";
+            options.InstanceName = "CleanArchitecture";
+        });
+
+        builder.Services.AddScoped<ICacheService, CacheService>();
+#endif
+
+#if (UseRabbitMQ)
+        // RabbitMQ configuration would go here
+        // This is a placeholder for message queue setup
+#endif
     }
 }

@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: CleanArchitecture-sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD:-Your_password123!}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - CleanArchitecture-network
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "${SA_PASSWORD:-Your_password123!}" -Q "SELECT 1" || exit 1
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 3s
+
+volumes:
+  sqlserver-data:
+
+networks:
+  CleanArchitecture-network:
+    driver: bridge

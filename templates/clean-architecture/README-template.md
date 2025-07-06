@@ -8,7 +8,48 @@ Run `dotnet build -tl` to build the solution.
 
 ## Run
 
-To run the web application:
+<!--#if (!UseSqlite) -->
+### Start Development Database
+
+The solution includes Docker support for local development databases.
+
+```bash
+# Windows PowerShell
+.\scripts\start-database.ps1
+
+# Linux/Mac
+./scripts/start-database.sh
+```
+
+This will start a Docker container with your chosen database. Database credentials are automatically generated and stored in .NET User Secrets when you first build the Web project.
+
+### Database Management Scripts
+
+#### Windows (PowerShell)
+- **Start Database**: `.\scripts\start-database.ps1` - Starts the database container
+- **Stop Database**: `.\scripts\stop-database.ps1` - Stops the database (data is preserved)
+- **Reset Database**: `.\scripts\reset-database.ps1` - Removes all data and starts fresh
+- **Show Credentials**: `.\scripts\show-credentials.ps1` - Display Docker service credentials
+
+#### Linux/Mac (Shell)
+- **Start Database**: `./scripts/start-database.sh` - Starts the database container
+- **Stop Database**: `./scripts/stop-database.sh` - Stops the database (data is preserved)
+- **Reset Database**: `./scripts/reset-database.sh` - Removes all data and starts fresh
+- **Show Credentials**: `./scripts/show-credentials.sh` - Display Docker service credentials
+
+**Note**: Database credentials are automatically generated and stored securely in .NET User Secrets when you first build the Web project.
+
+### Run Migrations
+
+After starting the database, apply Entity Framework migrations:
+
+```bash
+cd .\src\Web\
+dotnet ef database update
+```
+<!--#endif -->
+
+### Run the Application
 
 ```bash
 cd .\src\Web\

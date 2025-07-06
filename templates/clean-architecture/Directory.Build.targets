@@ -1,0 +1,176 @@
+<Project>
+  
+  <!-- Target to initialize Docker credentials in user secrets on first build -->
+  <Target Name="InitializeDockerSecrets" 
+          BeforeTargets="Build"
+          Condition="'$(MSBuildProjectName)' == 'Web' AND '$(Configuration)' == 'Debug'">
+    
+    <PropertyGroup>
+      <SecretsInitFile>$(MSBuildProjectDirectory)/obj/.docker-secrets-initialized</SecretsInitFile>
+    </PropertyGroup>
+    
+    <!-- Only run if secrets haven't been initialized -->
+    <CallTarget Targets="GenerateAndStoreDockerSecrets" Condition="!Exists('$(SecretsInitFile)')" />
+    
+  </Target>
+
+  <Target Name="GenerateAndStoreDockerSecrets">
+    
+    <PropertyGroup>
+      <!-- Generate random passwords if not already set -->
+      <DbPassword Condition="'$(DbPassword)' == ''">$([System.Guid]::NewGuid().ToString('N').Substring(0, 16))</DbPassword>
+      <RedisPassword Condition="'$(RedisPassword)' == '' AND '$(UseRedis)' == 'true' AND '$(UseRedisAuth)' == 'true'">$([System.Guid]::NewGuid().ToString('N').Substring(0, 16))</RedisPassword>
+      <RabbitMQPassword Condition="'$(RabbitMQPassword)' == '' AND '$(UseRabbitMQ)' == 'true'">$([System.Guid]::NewGuid().ToString('N').Substring(0, 16))</RabbitMQPassword>
+      <!-- Project name for Docker container naming -->
+      <ProjectName>$([System.IO.Path]::GetFileNameWithoutExtension('$(SolutionPath)'))</ProjectName>
+      <ProjectName Condition="'$(ProjectName)' == ''">$(MSBuildProjectName)</ProjectName>
+    </PropertyGroup>
+    
+    <Message Text="Initializing Docker service credentials in user secrets..." Importance="high" />
+    
+    <!-- Initialize user secrets -->
+    <Exec Command="dotnet user-secrets init --project &quot;$(MSBuildProjectDirectory)&quot;" />
+    
+    <!-- Set database connection string -->
+    <Exec Command="dotnet user-secrets set &quot;ConnectionStrings:CleanArchitectureDb&quot; &quot;Server=localhost,1433;Database=CleanArchitectureDb;User Id=sa;Password=$(DbPassword);TrustServerCertificate=true;MultipleActiveResultSets=true&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(Database)' == 'sqlserver'" />
+          
+    <Exec Command="dotnet user-secrets set &quot;ConnectionStrings:CleanArchitectureDb&quot; &quot;Host=localhost;Port=5432;Database=CleanArchitectureDb;Username=postgres;Password=$(DbPassword)&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(Database)' == 'postgresql'" />
+    
+    <!-- Set Redis connection string if enabled -->
+    <Exec Command="dotnet user-secrets set &quot;ConnectionStrings:Redis&quot; &quot;localhost:6379,password=$(RedisPassword)&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(UseRedis)' == 'true' AND '$(UseRedisAuth)' == 'true'" />
+          
+    <Exec Command="dotnet user-secrets set &quot;ConnectionStrings:Redis&quot; &quot;localhost:6379&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(UseRedis)' == 'true' AND '$(UseRedisAuth)' != 'true'" />
+    
+    <!-- Set RabbitMQ connection string if enabled -->
+    <Exec Command="dotnet user-secrets set &quot;RabbitMQ:ConnectionString&quot; &quot;amqp://admin:$(RabbitMQPassword)@localhost:5672&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(UseRabbitMQ)' == 'true'" />
+    
+    <!-- Store passwords for Docker containers -->
+    <Exec Command="dotnet user-secrets set &quot;Docker:DbPassword&quot; &quot;$(DbPassword)&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(Database)' != 'sqlite'" />
+          
+    <Exec Command="dotnet user-secrets set &quot;Docker:RedisPassword&quot; &quot;$(RedisPassword)&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(UseRedis)' == 'true' AND '$(UseRedisAuth)' == 'true'" />
+          
+    <Exec Command="dotnet user-secrets set &quot;Docker:RabbitMQPassword&quot; &quot;$(RabbitMQPassword)&quot; --project &quot;$(MSBuildProjectDirectory)&quot;"
+          Condition="'$(UseRabbitMQ)' == 'true'" />
+    
+    <!-- Create marker file to indicate secrets have been initialized -->
+    <Touch Files="$(SecretsInitFile)" AlwaysCreate="true" />
+    
+    <Message Text="Docker credentials have been initialized in user secrets." Importance="high" />
+    <Message Text="Run 'dotnet user-secrets list' in the Web project to view them." Importance="high" />
+    
+    <!-- Start Docker containers if configured -->
+    <CallTarget Targets="StartDockerContainers" />
+    
+  </Target>
+  
+  <Target Name="StartDockerContainers">
+    <PropertyGroup>
+      <DockerProjectName>$([System.IO.Path]::GetFileNameWithoutExtension('$(SolutionPath)'))</DockerProjectName>
+      <DockerProjectName Condition="'$(DockerProjectName)' == ''">$(MSBuildProjectName)</DockerProjectName>
+      <DockerProjectName>$(DockerProjectName.ToLower())</DockerProjectName>
+    </PropertyGroup>
+    
+    <Message Text="Checking Docker containers for $(DockerProjectName)..." Importance="high" />
+    
+    <!-- Check if Docker is running -->
+    <Exec Command="docker version" 
+          ContinueOnError="true" 
+          StandardOutputImportance="low" 
+          StandardErrorImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="DockerCheckExitCode" />
+    </Exec>
+    
+    <Warning Text="Docker is not running. Skipping container startup." 
+             Condition="'$(DockerCheckExitCode)' != '0'" />
+    
+    <!-- Only proceed if Docker is running -->
+    <CallTarget Targets="StartDockerContainersInternal" 
+                Condition="'$(DockerCheckExitCode)' == '0'" />
+  </Target>
+  
+  <Target Name="StartDockerContainersInternal">
+    <PropertyGroup>
+      <DockerComposeDir>$(MSBuildThisFileDirectory)docker</DockerComposeDir>
+      <DockerComposeArgs>-p $(DockerProjectName)</DockerComposeArgs>
+    </PropertyGroup>
+    
+    <!-- Start SQL Server if configured -->
+    <Exec Command="docker ps -q -f name=$(DockerProjectName)-sqlserver | findstr . > nul 2>&amp;1 &amp;&amp; echo 1 || echo 0"
+          Condition="'$(Database)' == 'sqlserver' AND Exists('$(DockerComposeDir)/docker-compose.sqlserver.yml')"
+          ContinueOnError="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="SqlServerContainerExists" />
+    </Exec>
+    
+    <PropertyGroup>
+      <SqlServerEnvVars>SA_PASSWORD=$(DbPassword)</SqlServerEnvVars>
+    </PropertyGroup>
+    
+    <Exec Command="set $(SqlServerEnvVars) &amp;&amp; docker-compose $(DockerComposeArgs) -f &quot;$(DockerComposeDir)/docker-compose.sqlserver.yml&quot; up -d"
+          Condition="'$(Database)' == 'sqlserver' AND '$(SqlServerContainerExists)' != '1' AND Exists('$(DockerComposeDir)/docker-compose.sqlserver.yml')"
+          WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    
+    <!-- Start PostgreSQL if configured -->
+    <Exec Command="docker ps -q -f name=$(DockerProjectName)-postgresql | findstr . > nul 2>&amp;1 &amp;&amp; echo 1 || echo 0"
+          Condition="'$(Database)' == 'postgresql' AND Exists('$(DockerComposeDir)/docker-compose.postgresql.yml')"
+          ContinueOnError="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="PostgresContainerExists" />
+    </Exec>
+    
+    <PropertyGroup>
+      <PostgresEnvVars>POSTGRES_PASSWORD=$(DbPassword)</PostgresEnvVars>
+    </PropertyGroup>
+    
+    <Exec Command="set $(PostgresEnvVars) &amp;&amp; docker-compose $(DockerComposeArgs) -f &quot;$(DockerComposeDir)/docker-compose.postgresql.yml&quot; up -d"
+          Condition="'$(Database)' == 'postgresql' AND '$(PostgresContainerExists)' != '1' AND Exists('$(DockerComposeDir)/docker-compose.postgresql.yml')"
+          WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    
+    <!-- Start Redis if configured -->
+    <Exec Command="docker ps -q -f name=$(DockerProjectName)-redis | findstr . > nul 2>&amp;1 &amp;&amp; echo 1 || echo 0"
+          Condition="'$(UseRedis)' == 'true' AND Exists('$(DockerComposeDir)/docker-compose.redis.yml')"
+          ContinueOnError="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="RedisContainerExists" />
+    </Exec>
+    
+    <PropertyGroup>
+      <RedisEnvVars>REDIS_PASSWORD=$(RedisPassword)</RedisEnvVars>
+    </PropertyGroup>
+    
+    <Exec Command="set $(RedisEnvVars) &amp;&amp; docker-compose $(DockerComposeArgs) -f &quot;$(DockerComposeDir)/docker-compose.redis.yml&quot; up -d"
+          Condition="'$(UseRedis)' == 'true' AND '$(RedisContainerExists)' != '1' AND Exists('$(DockerComposeDir)/docker-compose.redis.yml')"
+          WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    
+    <!-- Start RabbitMQ if configured -->
+    <Exec Command="docker ps -q -f name=$(DockerProjectName)-rabbitmq | findstr . > nul 2>&amp;1 &amp;&amp; echo 1 || echo 0"
+          Condition="'$(UseRabbitMQ)' == 'true' AND Exists('$(DockerComposeDir)/docker-compose.rabbitmq.yml')"
+          ContinueOnError="true"
+          ConsoleToMSBuild="true"
+          StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="RabbitMQContainerExists" />
+    </Exec>
+    
+    <PropertyGroup>
+      <RabbitMQEnvVars>RABBITMQ_DEFAULT_PASS=$(RabbitMQPassword)</RabbitMQEnvVars>
+    </PropertyGroup>
+    
+    <Exec Command="set $(RabbitMQEnvVars) &amp;&amp; docker-compose $(DockerComposeArgs) -f &quot;$(DockerComposeDir)/docker-compose.rabbitmq.yml&quot; up -d"
+          Condition="'$(UseRabbitMQ)' == 'true' AND '$(RabbitMQContainerExists)' != '1' AND Exists('$(DockerComposeDir)/docker-compose.rabbitmq.yml')"
+          WorkingDirectory="$(MSBuildThisFileDirectory)" />
+    
+    <Message Text="Docker containers are ready for $(DockerProjectName)." 
+             Importance="high" />
+  </Target>
+  
+</Project>

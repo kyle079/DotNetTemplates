@@ -1,0 +1,32 @@
+# Docker Compose Override Example
+# Copy this file to docker-compose.override.yml and modify as needed
+# docker-compose.override.yml is gitignored by default
+
+version: '3.8'
+
+# Note: Run ./scripts/generate-docker-compose.ps1 to create the main docker-compose.yml
+
+services:
+  # Add your overrides for each service here
+  # Example overrides:
+  
+  # sqlserver:
+  #   environment:
+  #     - SA_PASSWORD=YourSecurePassword123!
+  #   ports:
+  #     - "14330:1433"
+  
+  # postgresql:
+  #   environment:
+  #     - POSTGRES_PASSWORD=YourSecurePassword123!
+  #   ports:
+  #     - "54320:5432"
+  
+  # redis:
+  #   ports:
+  #     - "63790:6379"
+  
+  # rabbitmq:
+  #   environment:
+  #     - RABBITMQ_DEFAULT_USER=myuser
+  #     - RABBITMQ_DEFAULT_PASS=mypassword

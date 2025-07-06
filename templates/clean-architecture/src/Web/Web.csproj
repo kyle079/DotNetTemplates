@@ -8,6 +8,7 @@
     <!--#endif-->
     <RootNamespace>CleanArchitecture.Web</RootNamespace>
     <AssemblyName>CleanArchitecture.Web</AssemblyName>
+    <UserSecretsId>aspnet-CleanArchitecture-TemplateSeed</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
